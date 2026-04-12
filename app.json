@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "little-tomatoes-v2",
-    "slug": "little-tomatoes-v2",
+    "name": "Little Tomatoes",
+    "slug": "little-tomatoes",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
