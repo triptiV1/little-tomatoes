@@ -55,6 +55,13 @@ const ACTIVITIES: Record<string, { question: string; options: string[]; correct:
     { question: 'You did something hard! How do you feel?', options: ['Bored 😑', 'Proud 🌟', 'Scared 😨', 'Silly 🤪'], correct: 'Proud 🌟' },
     { question: 'It\'s OK to feel sad sometimes. What helps?', options: ['Hide your feelings 😶', 'Talk to someone you trust 💬', 'Never feel sad again', 'Scream forever 😱'], correct: 'Talk to someone you trust 💬' },
   ],
+  ada: [
+    { question: 'Ada wants to learn colors! Show her 3 red things 🥑', options: ['🍎🍅🌹', '🍌🌻⭐', '🌊💙🐬', '🌿🍃🐸'], correct: '🍎🍅🌹' },
+    { question: 'Help Ada finish the pattern: 🥑⭐🥑⭐🥑___', options: ['⭐', '🥑', '❤️', '🌟'], correct: '⭐' },
+    { question: 'Ada made a mistake! She thinks 2+2=5. Is Ada right?', options: ['Yes', 'No, 2+2=4', 'Maybe', "I don't know"], correct: 'No, 2+2=4' },
+    { question: 'What can computers NOT do?', options: ['Play music 🎵', 'Feel sad 😢', 'Show pictures 🖼️', 'Count numbers 🔢'], correct: 'Feel sad 😢' },
+    { question: 'Teach Ada something new! A cat says...', options: ['Moo 🐄', 'Woof 🐕', 'Meow 🐱', 'Oink 🐷'], correct: 'Meow 🐱' },
+  ],
 };
 
 export default function ActivityScreen({

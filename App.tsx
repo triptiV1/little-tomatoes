@@ -21,8 +21,8 @@ export default function App() {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(string | null)[]>([null, null, null]);
   const [readinessScore, setReadinessScore] = useState(0);
-  // skillPcts[i] maps to CHARACTERS[i] — indices: tommy=0,egie=1,pete=2,ollie=3,celly=4,oliver=5,carrie=6
-  const [skillPcts, setSkillPcts] = useState<number[]>([50, 50, 50, 50, 50, 50, 50]);
+  // skillPcts[i] maps to CHARACTERS[i] — indices: tommy=0,egie=1,pete=2,ollie=3,celly=4,oliver=5,carrie=6,ada=7
+  const [skillPcts, setSkillPcts] = useState<number[]>([50, 50, 50, 50, 50, 50, 50, 50]);
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [activitiesUsedToday, setActivitiesUsedToday] = useState(0);
   const FREE_LIMIT = 3;

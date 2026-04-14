@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Dimensions, Image } from 'react-native';
 import { Character, CHARACTERS } from './types';
 
 const { width } = Dimensions.get('window');
@@ -61,7 +61,9 @@ export default function VeggieValleyScreen({
               activeOpacity={0.85}
               onPress={() => onSelectCharacter(char)}
             >
-              <Text style={vv.patchEmoji}>{char.emoji}</Text>
+              {char.imageUrl
+                ? <Image source={{ uri: char.imageUrl }} style={vv.patchImage} />
+                : <Text style={vv.patchEmoji}>{char.emoji}</Text>}
               <Text style={vv.patchName}>{char.name}</Text>
               <Text style={vv.patchDomain}>{char.domain}</Text>
               <View style={vv.stageBadge}>
@@ -119,6 +121,7 @@ const vv = StyleSheet.create({
     shadowOpacity: 0.2, shadowRadius: 6, elevation: 5,
   },
   patchEmoji: { fontSize: 38, marginBottom: 8 },
+  patchImage: { width: 80, height: 80, marginBottom: 8 },
   patchName: { fontSize: 16, fontWeight: '800', color: 'white', marginBottom: 2 },
   patchDomain: { fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: '500', marginBottom: 10 },
 
