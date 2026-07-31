@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "predeploy": "npx expo export --platform web",
-    "deploy": "gh-pages -d dist"
+    "deploy": "touch dist/.nojekyll && gh-pages -d dist -t"
   },
   "dependencies": {
     "expo": "~54.0.33",
