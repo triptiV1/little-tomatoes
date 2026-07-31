@@ -72,6 +72,7 @@ export default function ActivityScreen({
   onBack: () => void;
   onComplete: () => void;
 }) {
+  const [voiceId, setVoiceId] = useState<string | undefined>(undefined);
   const [activityIndex, setActivityIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
@@ -80,6 +81,30 @@ export default function ActivityScreen({
   const activity = activities[activityIndex];
   const total = activities.length;
   const isCorrect = selectedOption === activity.correct;
+
+  // Helper to remove emojis for clean voice speaking
+  const cleanText = (text: string) => {
+    return text.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "").trim();
+  };
+
+  // Query premium voices on mount
+  useEffect(() => {
+    async function loadVoices() {
+      try {
+        const voices = await Speech.getAvailableVoicesAsync();
+        const englishVoices = voices.filter(v => v.language.startsWith('en'));
+        const bestVoice = englishVoices.find(v => 
+          v.name.toLowerCase().includes('premium') || 
+          v.name.toLowerCase().includes('enhanced') || 
+          v.name.toLowerCase().includes('samantha')
+        ) || englishVoices[0];
+        if (bestVoice) setVoiceId(bestVoice.identifier);
+      } catch (e) {
+        console.log('Error loading voices:', e);
+      }
+    }
+    loadVoices();
+  }, []);
 
   const handleNext = () => {
     if (activityIndex < total - 1) {
@@ -92,13 +117,13 @@ export default function ActivityScreen({
   };
 
   useEffect(() => {
-    // Speak the question text automatically in a toddler-friendly speed
+    // Speak the question text automatically in a toddler-friendly speed and pitch
     Speech.stop();
-    Speech.speak(activity.question, { rate: 0.85 });
+    Speech.speak(activity.question, { voice: voiceId, rate: 0.85, pitch: 1.15 });
     return () => {
       Speech.stop();
     };
-  }, [activityIndex]);
+  }, [activityIndex, voiceId]);
 
   return (
     <SafeAreaView style={ac.screen}>
@@ -121,7 +146,7 @@ export default function ActivityScreen({
           <View style={ac.questionRow}>
             <Text style={ac.questionText}>{activity.question}</Text>
             <TouchableOpacity
-              onPress={() => Speech.speak(activity.question, { rate: 0.85 })}
+              onPress={() => Speech.speak(activity.question, { voice: voiceId, rate: 0.85, pitch: 1.15 })}
               style={[ac.speakerBtn, { backgroundColor: character.color }]}
               activeOpacity={0.8}
             >
@@ -138,7 +163,13 @@ export default function ActivityScreen({
                 key={opt}
                 style={[ac.optionBtn, isSelected && { backgroundColor: character.color, borderColor: character.color }]}
                 activeOpacity={0.8}
-                onPress={() => { if (!checked) setSelectedOption(opt); }}
+                onPress={() => {
+                  if (!checked) {
+                    setSelectedOption(opt);
+                    Speech.stop();
+                    Speech.speak(cleanText(opt), { voice: voiceId, rate: 0.85, pitch: 1.15 });
+                  }
+                }}
               >
                 <Text style={[ac.optionText, isSelected && ac.optionTextSelected]}>{opt}</Text>
               </TouchableOpacity>

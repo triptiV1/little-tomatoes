@@ -49,13 +49,42 @@ export default function AssessmentScreen({
   setAnswers: (v: (string | null)[]) => void;
   onComplete: (answers: (string | null)[]) => void;
 }) {
+  const [voiceId, setVoiceId] = React.useState<string | undefined>(undefined);
   const q = QUESTIONS[questionIndex];
   const currentAnswer = answers[questionIndex];
+
+  // Helper to remove emojis for clean voice speaking
+  const cleanText = (text: string) => {
+    return text.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "").trim();
+  };
+
+  // Query premium voices on mount
+  useEffect(() => {
+    async function loadVoices() {
+      try {
+        const voices = await Speech.getAvailableVoicesAsync();
+        const englishVoices = voices.filter(v => v.language.startsWith('en'));
+        const bestVoice = englishVoices.find(v => 
+          v.name.toLowerCase().includes('premium') || 
+          v.name.toLowerCase().includes('enhanced') || 
+          v.name.toLowerCase().includes('samantha')
+        ) || englishVoices[0];
+        if (bestVoice) setVoiceId(bestVoice.identifier);
+      } catch (e) {
+        console.log('Error loading voices:', e);
+      }
+    }
+    loadVoices();
+  }, []);
 
   const selectAnswer = (option: string) => {
     const updated = [...answers];
     updated[questionIndex] = option;
     setAnswers(updated);
+    
+    // Read selected option out loud in a cheerful pitch
+    Speech.stop();
+    Speech.speak(cleanText(option), { voice: voiceId, rate: 0.85, pitch: 1.15 });
   };
 
   const handleNext = () => {
@@ -67,13 +96,13 @@ export default function AssessmentScreen({
   };
 
   useEffect(() => {
-    // Speak the question text automatically in a toddler-friendly speed
+    // Speak the question text automatically in a toddler-friendly speed and pitch
     Speech.stop();
-    Speech.speak(q.question, { rate: 0.85 });
+    Speech.speak(q.question, { voice: voiceId, rate: 0.85, pitch: 1.15 });
     return () => {
       Speech.stop();
     };
-  }, [questionIndex]);
+  }, [questionIndex, voiceId]);
 
   return (
     <SafeAreaView style={as.screen}>
