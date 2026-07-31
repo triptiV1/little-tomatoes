@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, SafeAreaView, Dimensions, Image, ScrollView } from 'react-native';
 import { CHARACTERS } from './types';
+import { Audio } from 'expo-av';
 
 const { width } = Dimensions.get('window');
 
@@ -13,16 +14,47 @@ export default function WelcomeScreen({
   pulseAnim: Animated.Value;
   onStart: () => void;
 }) {
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  const playSound = async (source: any) => {
+    try {
+      if (soundRef.current) {
+        await soundRef.current.unloadAsync();
+      }
+      const { sound } = await Audio.Sound.createAsync(source);
+      soundRef.current = sound;
+      await sound.playAsync();
+    } catch (e) {
+      console.log('Error playing welcome audio:', e);
+    }
+  };
+
+  useEffect(() => {
+    // Autoplay the greeting when screen loads
+    playSound(require('../assets/audio/welcome_greeting.mp3'));
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
+    };
+  }, []);
+
   return (
     <SafeAreaView style={s.screen}>
       <View style={s.content}>
 
         {/* Tommy Tomato */}
-        <Animated.Image
-          source={{ uri: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663412164345/mDeHhBqhgiLAcJPJuMJgTV/tommy_tomato_b8e48856.png' }}
-          style={{ width: 220, height: 220, backgroundColor: 'transparent', transform: [{ translateY: bounceAnim }] }}
-          resizeMode="contain"
-        />
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => playSound(require('../assets/audio/welcome_greeting.mp3'))}
+          style={{ width: 220, height: 220, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Animated.Image
+            source={{ uri: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663412164345/mDeHhBqhgiLAcJPJuMJgTV/tommy_tomato_b8e48856.png' }}
+            style={{ width: 220, height: 220, backgroundColor: 'transparent', transform: [{ translateY: bounceAnim }] }}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
 
         {/* Title */}
         <Text style={[s.title, { paddingHorizontal: 28 }]}>Little Tomatoes</Text>

@@ -52,7 +52,10 @@ PHRASES = {
     
     # Feedback
     "yay.mp3": "Yay! You got it!",
-    "good_try.mp3": "Good try!"
+    "good_try.mp3": "Good try!",
+    
+    # Welcome Screen
+    "welcome_greeting.mp3": "Hello big thinkers! Welcome to my world! I'm Tommy Tomato, and I'm so excited to grow and play with you, my little tomato friends! Let's start growing! Tap me to hear me talk!"
 }
 
 async def generate_speech(filename, text):
