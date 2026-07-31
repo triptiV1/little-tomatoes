@@ -62,8 +62,9 @@ export default function VeggieValleyScreen({
               onPress={() => onSelectCharacter(char)}
             >
               {char.imageUrl
-                ? <Image source={{ uri: char.imageUrl }} style={vv.patchImage} />
+                ? <Image source={typeof char.imageUrl === 'string' ? { uri: char.imageUrl } : char.imageUrl} style={vv.patchImage} />
                 : <Text style={vv.patchEmoji}>{char.emoji}</Text>}
+
               <Text style={vv.patchName}>{char.name}</Text>
               <Text style={vv.patchDomain}>{char.domain}</Text>
               <View style={vv.stageBadge}>

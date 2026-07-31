@@ -5,24 +5,37 @@ const { width } = Dimensions.get('window');
 
 const QUESTIONS = [
   {
-    question: 'Which comes next?',
+    question: 'Which comes next in the pattern?',
     pattern: '🔴 🔵 🔴 🔵 🔴 ___',
     options: ['🔵', '🔴', '🟡', '🟢'],
     correct: '🔵',
   },
   {
-    question: 'How many apples?',
-    pattern: '🍎 🍎 🍎',
+    question: 'If you have 3 apples and get 1 more, how many do you have?',
+    pattern: '🍎 🍎 🍎 + 🍎',
     options: ['2', '3', '4', '5'],
-    correct: '3',
+    correct: '4',
   },
   {
-    question: 'What rhymes with CAT?',
-    pattern: '',
-    options: ['Dog', 'Hat', 'Ball', 'Fish'],
-    correct: 'Hat',
+    question: 'A glove goes on a hand. A shoe goes on a...',
+    pattern: '🧤 ➔ ✋ | 👟 ➔ ?',
+    options: ['Foot 🦶', 'Head 👤', 'Finger ☝️', 'Arm 💪'],
+    correct: 'Foot 🦶',
+  },
+  {
+    question: 'Pete shows you: 🚗 🍕 🌟. What was in the middle?',
+    pattern: '🚗 ➔ ? ➔ 🌟',
+    options: ['Pizza 🍕', 'Car 🚗', 'Star 🌟', 'Balloon 🎈'],
+    correct: 'Pizza 🍕',
+  },
+  {
+    question: 'Your crayon breaks while drawing. What should you do?',
+    pattern: '🖍️ ➔ 💔',
+    options: ['Try another color 🖍️', 'Cry and scream 😢', 'Stop drawing 🙅', 'Throw it away 🗑️'],
+    correct: 'Try another color 🖍️',
   },
 ];
+
 
 export default function AssessmentScreen({
   onBack, childName, questionIndex, setQuestionIndex, answers, setAnswers, onComplete,

@@ -19,7 +19,7 @@ export default function App() {
   const [childName, setChildName] = useState('');
   const [selectedAge, setSelectedAge] = useState<number | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<(string | null)[]>([null, null, null]);
+  const [answers, setAnswers] = useState<(string | null)[]>([null, null, null, null, null]);
   const [readinessScore, setReadinessScore] = useState(0);
   // skillPcts[i] maps to CHARACTERS[i] — indices: tommy=0,egie=1,pete=2,ollie=3,celly=4,oliver=5,carrie=6,ada=7
   const [skillPcts, setSkillPcts] = useState<number[]>([50, 50, 50, 50, 50, 50, 50, 50]);
@@ -66,7 +66,7 @@ export default function App() {
         setChildName={setChildName}
         selectedAge={selectedAge}
         setSelectedAge={setSelectedAge}
-        onContinue={() => { setQuestionIndex(0); setAnswers([null, null, null]); setScreen('assessment'); }}
+        onContinue={() => { setQuestionIndex(0); setAnswers([null, null, null, null, null]); setScreen('assessment'); }}
       />
     );
   }
@@ -82,13 +82,46 @@ export default function App() {
         setAnswers={setAnswers}
         onComplete={(finalAnswers) => {
           const q1 = finalAnswers[0] === '🔵';
-          const q2 = finalAnswers[1] === '3';
-          const q3 = finalAnswers[2] === 'Hat';
-          const correct = [q1, q2, q3].filter(Boolean).length;
-          setReadinessScore([25, 45, 65, 100][correct]);
-          // Q1→egie(1) Pattern Recognition, Q2→oliver(5) Quantitative, Q3→ollie(3) Verbal
-          // Tested: correct=85%, wrong=40%. Untested: 50%
-          setSkillPcts([50, q1 ? 85 : 40, 50, q3 ? 85 : 40, 50, q2 ? 85 : 40, 50]);
+          const q2 = finalAnswers[1] === '4';
+          const q3 = finalAnswers[2] === 'Foot 🦶';
+          const q4 = finalAnswers[3] === 'Pizza 🍕';
+          const q5 = finalAnswers[4] === 'Try another color 🖍️';
+          const correct = [q1, q2, q3, q4, q5].filter(Boolean).length;
+          
+          // Age-normed CogAT scoring mimicking Washington State Early Entrance / Gifted APR
+          let score = 50; 
+          const age = selectedAge || 4;
+          
+          if (correct === 0) {
+            score = age === 3 ? 30 : (age === 4 ? 20 : 10);
+          } else if (correct === 1) {
+            score = age === 3 ? 50 : (age === 4 ? 40 : 30);
+          } else if (correct === 2) {
+            score = age === 3 ? 70 : (age === 4 ? 60 : 50);
+          } else if (correct === 3) {
+            score = age === 3 ? 88 : (age === 4 ? 78 : 68);
+          } else if (correct === 4) {
+            score = age === 3 ? 97 : (age === 4 ? 90 : 80);
+          } else if (correct === 5) {
+            score = age === 3 ? 99 : (age === 4 ? 98 : 96);
+          }
+          
+          setReadinessScore(score);
+          
+          const getSkillPct = (isCorrect: boolean) => {
+            return isCorrect ? (age === 3 ? 95 : (age === 4 ? 85 : 75)) : (age === 3 ? 50 : (age === 4 ? 40 : 30));
+          };
+          
+          setSkillPcts([
+            50,                     // Tommy (Logical)
+            getSkillPct(q1),        // Egie (Pattern)
+            getSkillPct(q4),        // Pete (Memory)
+            getSkillPct(q3),        // Ollie (Verbal)
+            50,                     // Celly (Speed)
+            getSkillPct(q2),        // Oliver (Quantitative)
+            getSkillPct(q5),        // Carrie (Resilience)
+            50,                     // Ada (AI Thinking)
+          ]);
           setScreen('veggieValley');
         }}
       />

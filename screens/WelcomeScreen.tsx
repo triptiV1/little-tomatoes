@@ -38,7 +38,7 @@ export default function WelcomeScreen({
           {CHARACTERS.map((char) => (
             <View key={char.id} style={s.friendItem}>
               {char.imageUrl
-                ? <Image source={{ uri: char.imageUrl }} style={s.friendImage} resizeMode="cover" />
+                ? <Image source={typeof char.imageUrl === 'string' ? { uri: char.imageUrl } : char.imageUrl} style={s.friendImage} resizeMode="cover" />
                 : <Text style={s.friendEmoji}>{char.emoji}</Text>}
               <Text style={s.friendName}>{char.name}</Text>
             </View>
