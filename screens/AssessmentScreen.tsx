@@ -82,9 +82,9 @@ export default function AssessmentScreen({
     updated[questionIndex] = option;
     setAnswers(updated);
     
-    // Read selected option out loud in a cheerful pitch
+    // Read selected option out loud in a normal pitch
     Speech.stop();
-    Speech.speak(cleanText(option), { voice: voiceId, rate: 0.85, pitch: 1.15 });
+    Speech.speak(cleanText(option), { voice: voiceId, rate: 1.0, pitch: 1.0 });
   };
 
   const handleNext = () => {
@@ -96,9 +96,9 @@ export default function AssessmentScreen({
   };
 
   useEffect(() => {
-    // Speak the question text automatically in a toddler-friendly speed and pitch
+    // Speak the question text automatically in a normal speed and pitch
     Speech.stop();
-    Speech.speak(q.question, { voice: voiceId, rate: 0.85, pitch: 1.15 });
+    Speech.speak(q.question, { voice: voiceId, rate: 1.0, pitch: 1.0 });
     return () => {
       Speech.stop();
     };

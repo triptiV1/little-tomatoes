@@ -117,9 +117,9 @@ export default function ActivityScreen({
   };
 
   useEffect(() => {
-    // Speak the question text automatically in a toddler-friendly speed and pitch
+    // Speak the question text automatically in a normal speed and pitch
     Speech.stop();
-    Speech.speak(activity.question, { voice: voiceId, rate: 0.85, pitch: 1.15 });
+    Speech.speak(activity.question, { voice: voiceId, rate: 1.0, pitch: 1.0 });
     return () => {
       Speech.stop();
     };
@@ -146,7 +146,7 @@ export default function ActivityScreen({
           <View style={ac.questionRow}>
             <Text style={ac.questionText}>{activity.question}</Text>
             <TouchableOpacity
-              onPress={() => Speech.speak(activity.question, { voice: voiceId, rate: 0.85, pitch: 1.15 })}
+              onPress={() => Speech.speak(activity.question, { voice: voiceId, rate: 1.0, pitch: 1.0 })}
               style={[ac.speakerBtn, { backgroundColor: character.color }]}
               activeOpacity={0.8}
             >
@@ -167,7 +167,7 @@ export default function ActivityScreen({
                   if (!checked) {
                     setSelectedOption(opt);
                     Speech.stop();
-                    Speech.speak(cleanText(opt), { voice: voiceId, rate: 0.85, pitch: 1.15 });
+                    Speech.speak(cleanText(opt), { voice: voiceId, rate: 1.0, pitch: 1.0 });
                   }
                 }}
               >
