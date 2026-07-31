@@ -48,7 +48,11 @@ PHRASES = {
     "opt_try_color.mp3": "Try another color",
     "opt_cry.mp3": "Cry and scream",
     "opt_stop.mp3": "Stop drawing",
-    "opt_throw.mp3": "Throw it away"
+    "opt_throw.mp3": "Throw it away",
+    
+    # Feedback
+    "yay.mp3": "Yay! You got it!",
+    "good_try.mp3": "Good try!"
 }
 
 async def generate_speech(filename, text):

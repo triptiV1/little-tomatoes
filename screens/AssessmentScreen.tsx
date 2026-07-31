@@ -63,6 +63,8 @@ const AUDIO_ASSETS: Record<string, any> = {
   'Cry and scream 😢': require('../assets/audio/opt_cry.mp3'),
   'Stop drawing 🙅': require('../assets/audio/opt_stop.mp3'),
   'Throw it away 🗑️': require('../assets/audio/opt_throw.mp3'),
+  yay: require('../assets/audio/yay.mp3'),
+  good_try: require('../assets/audio/good_try.mp3'),
 };
 
 export default function AssessmentScreen({
@@ -79,6 +81,7 @@ export default function AssessmentScreen({
   const q = QUESTIONS[questionIndex];
   const currentAnswer = answers[questionIndex];
   const soundRef = useRef<Audio.Sound | null>(null);
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
   const playSound = async (source: any) => {
     try {
@@ -104,20 +107,34 @@ export default function AssessmentScreen({
     };
   }, []);
 
-  const selectAnswer = (option: string) => {
+  const selectAnswer = async (option: string) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
     const updated = [...answers];
     updated[questionIndex] = option;
     setAnswers(updated);
     
-    // Play option voiceover
-    playSound(AUDIO_ASSETS[option]);
-  };
+    // 1. Play option voiceover (e.g. "Foot")
+    await playSound(AUDIO_ASSETS[option]);
+    
+    // Wait a brief moment for the option voice to finish
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // 2. Play feedback voiceover ("Yay" or "Good Try")
+    const isCorrect = option === q.correct;
+    await playSound(isCorrect ? AUDIO_ASSETS.yay : AUDIO_ASSETS.good_try);
+    
+    // Wait for the feedback voice to finish
+    await new Promise(resolve => setTimeout(resolve, 1400));
+    
+    setIsProcessing(false);
 
-  const handleNext = () => {
+    // 3. Auto-advance to the next question
     if (questionIndex < QUESTIONS.length - 1) {
       setQuestionIndex(questionIndex + 1);
     } else {
-      onComplete([...answers]);
+      onComplete(updated);
     }
   };
 
@@ -165,7 +182,7 @@ export default function AssessmentScreen({
             <TouchableOpacity
               key={option}
               style={[as.optionBtn, currentAnswer === option && as.optionBtnSelected]}
-              onPress={() => selectAnswer(option)}
+              onPress={() => { if (!isProcessing) selectAnswer(option); }}
               activeOpacity={0.8}
             >
               <Text style={[as.optionText, currentAnswer === option && as.optionTextSelected]}>
@@ -175,13 +192,7 @@ export default function AssessmentScreen({
           ))}
         </View>
 
-        {currentAnswer !== null && (
-          <TouchableOpacity style={as.nextBtn} onPress={handleNext} activeOpacity={0.85}>
-            <Text style={as.nextBtnText}>
-              {questionIndex < QUESTIONS.length - 1 ? 'Next →' : 'See Results 🌱'}
-            </Text>
-          </TouchableOpacity>
-        )}
+
       </View>
     </SafeAreaView>
   );
