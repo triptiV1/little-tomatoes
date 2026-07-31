@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { Character } from './types';
-import * as Speech from 'expo-speech';
 
 const { width } = Dimensions.get('window');
 const OPTION_WIDTH = (width - 28 * 2 - 12) / 2;
@@ -72,7 +71,6 @@ export default function ActivityScreen({
   onBack: () => void;
   onComplete: () => void;
 }) {
-  const [voiceId, setVoiceId] = useState<string | undefined>(undefined);
   const [activityIndex, setActivityIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
@@ -81,30 +79,6 @@ export default function ActivityScreen({
   const activity = activities[activityIndex];
   const total = activities.length;
   const isCorrect = selectedOption === activity.correct;
-
-  // Helper to remove emojis for clean voice speaking
-  const cleanText = (text: string) => {
-    return text.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "").trim();
-  };
-
-  // Query premium voices on mount
-  useEffect(() => {
-    async function loadVoices() {
-      try {
-        const voices = await Speech.getAvailableVoicesAsync();
-        const englishVoices = voices.filter(v => v.language.startsWith('en'));
-        const bestVoice = englishVoices.find(v => 
-          v.name.toLowerCase().includes('premium') || 
-          v.name.toLowerCase().includes('enhanced') || 
-          v.name.toLowerCase().includes('samantha')
-        ) || englishVoices[0];
-        if (bestVoice) setVoiceId(bestVoice.identifier);
-      } catch (e) {
-        console.log('Error loading voices:', e);
-      }
-    }
-    loadVoices();
-  }, []);
 
   const handleNext = () => {
     if (activityIndex < total - 1) {
@@ -115,15 +89,6 @@ export default function ActivityScreen({
       onComplete();
     }
   };
-
-  useEffect(() => {
-    // Speak the question text automatically in a normal speed and pitch
-    Speech.stop();
-    Speech.speak(activity.question, { voice: voiceId, rate: 1.0, pitch: 1.0 });
-    return () => {
-      Speech.stop();
-    };
-  }, [activityIndex, voiceId]);
 
   return (
     <SafeAreaView style={ac.screen}>
@@ -145,13 +110,6 @@ export default function ActivityScreen({
           <Text style={ac.cardLabel}>{character.name} says:</Text>
           <View style={ac.questionRow}>
             <Text style={ac.questionText}>{activity.question}</Text>
-            <TouchableOpacity
-              onPress={() => Speech.speak(activity.question, { voice: voiceId, rate: 1.0, pitch: 1.0 })}
-              style={[ac.speakerBtn, { backgroundColor: character.color }]}
-              activeOpacity={0.8}
-            >
-              <Text style={ac.speakerText}>🔊</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -165,9 +123,7 @@ export default function ActivityScreen({
                 activeOpacity={0.8}
                 onPress={() => {
                   if (!checked) {
-                    setSelectedOption(opt);
-                    Speech.stop();
-                    Speech.speak(cleanText(opt), { voice: voiceId, rate: 1.0, pitch: 1.0 });
+                     setSelectedOption(opt);
                   }
                 }}
               >

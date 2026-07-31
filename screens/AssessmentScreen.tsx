@@ -1,6 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
-import { Audio } from 'expo-av';
 
 const { width } = Dimensions.get('window');
 
@@ -37,36 +36,6 @@ const QUESTIONS = [
   },
 ];
 
-const AUDIO_ASSETS: Record<string, any> = {
-  q1: require('../assets/audio/q1.mp3'),
-  q2: require('../assets/audio/q2.mp3'),
-  q3: require('../assets/audio/q3.mp3'),
-  q4: require('../assets/audio/q4.mp3'),
-  q5: require('../assets/audio/q5.mp3'),
-  '🔵': require('../assets/audio/opt_blue_circle.mp3'),
-  '🔴': require('../assets/audio/opt_red_circle.mp3'),
-  '🟡': require('../assets/audio/opt_yellow_circle.mp3'),
-  '🟢': require('../assets/audio/opt_green_circle.mp3'),
-  '2': require('../assets/audio/opt_2.mp3'),
-  '3': require('../assets/audio/opt_3.mp3'),
-  '4': require('../assets/audio/opt_4.mp3'),
-  '5': require('../assets/audio/opt_5.mp3'),
-  'Foot 🦶': require('../assets/audio/opt_foot.mp3'),
-  'Head 👤': require('../assets/audio/opt_head.mp3'),
-  'Finger ☝️': require('../assets/audio/opt_finger.mp3'),
-  'Arm 💪': require('../assets/audio/opt_arm.mp3'),
-  'Pizza 🍕': require('../assets/audio/opt_pizza.mp3'),
-  'Car 🚗': require('../assets/audio/opt_car.mp3'),
-  'Star 🌟': require('../assets/audio/opt_star.mp3'),
-  'Balloon 🎈': require('../assets/audio/opt_balloon.mp3'),
-  'Try another color 🖍️': require('../assets/audio/opt_try_color.mp3'),
-  'Cry and scream 😢': require('../assets/audio/opt_cry.mp3'),
-  'Stop drawing 🙅': require('../assets/audio/opt_stop.mp3'),
-  'Throw it away 🗑️': require('../assets/audio/opt_throw.mp3'),
-  yay: require('../assets/audio/yay.mp3'),
-  good_try: require('../assets/audio/good_try.mp3'),
-};
-
 export default function AssessmentScreen({
   onBack, childName, questionIndex, setQuestionIndex, answers, setAnswers, onComplete,
 }: {
@@ -80,34 +49,9 @@ export default function AssessmentScreen({
 }) {
   const q = QUESTIONS[questionIndex];
   const currentAnswer = answers[questionIndex];
-  const soundRef = useRef<Audio.Sound | null>(null);
-  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const playSound = async (source: any) => {
-    try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-      }
-      if (source) {
-        const { sound } = await Audio.Sound.createAsync(source);
-        soundRef.current = sound;
-        await sound.playAsync();
-      }
-    } catch (e) {
-      console.log('Error playing audio asset:', e);
-    }
-  };
-
-  // Cleanup sound on unmount
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-  }, []);
-
-  const selectAnswer = async (option: string) => {
+  const selectAnswer = (option: string) => {
     if (isProcessing) return;
     setIsProcessing(true);
 
@@ -115,33 +59,16 @@ export default function AssessmentScreen({
     updated[questionIndex] = option;
     setAnswers(updated);
     
-    // 1. Play option voiceover (e.g. "Foot")
-    await playSound(AUDIO_ASSETS[option]);
-    
-    // Wait a brief moment for the option voice to finish
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // 2. Play feedback voiceover ("Yay" or "Good Try")
-    const isCorrect = option === q.correct;
-    await playSound(isCorrect ? AUDIO_ASSETS.yay : AUDIO_ASSETS.good_try);
-    
-    // Wait for the feedback voice to finish
-    await new Promise(resolve => setTimeout(resolve, 1400));
-    
-    setIsProcessing(false);
-
-    // 3. Auto-advance to the next question
-    if (questionIndex < QUESTIONS.length - 1) {
-      setQuestionIndex(questionIndex + 1);
-    } else {
-      onComplete(updated);
-    }
+    // Brief delay so kids see their choice highlight, then flip
+    setTimeout(() => {
+      setIsProcessing(false);
+      if (questionIndex < QUESTIONS.length - 1) {
+        setQuestionIndex(questionIndex + 1);
+      } else {
+        onComplete(updated);
+      }
+    }, 300);
   };
-
-  useEffect(() => {
-    // Speak the question automatically
-    playSound(AUDIO_ASSETS[`q${questionIndex + 1}`]);
-  }, [questionIndex]);
 
   return (
     <SafeAreaView style={as.screen}>
@@ -166,13 +93,6 @@ export default function AssessmentScreen({
         <View style={as.card}>
           <View style={as.questionRow}>
             <Text style={as.questionText}>{q.question}</Text>
-            <TouchableOpacity
-              onPress={() => playSound(AUDIO_ASSETS[`q${questionIndex + 1}`])}
-              style={as.speakerBtn}
-              activeOpacity={0.8}
-            >
-              <Text style={as.speakerText}>🔊</Text>
-            </TouchableOpacity>
           </View>
           {q.pattern ? <Text style={as.pattern}>{q.pattern}</Text> : null}
         </View>
@@ -191,7 +111,6 @@ export default function AssessmentScreen({
             </TouchableOpacity>
           ))}
         </View>
-
 
       </View>
     </SafeAreaView>
