@@ -60,12 +60,12 @@ PHRASES = {
     "yay.mp3": {"text": "Yay! You got it!", "voice": TEACHER_VOICE},
     "good_try.mp3": {"text": "Good try!", "voice": TEACHER_VOICE},
     
-    # Welcome Screen (Tommy Tomato - Mickey Mouse cartoon style voice)
+    # Welcome Screen (Tommy Tomato - cute, high-energy child voice)
     "welcome_greeting.mp3": {
-        "text": "Hello big thinkers! Welcome to my world! I'm Tommy Tomato, and I'm so excited to grow and play with you, my little tomato friends! Let's start growing! Tap me to hear me talk!",
+        "text": "Hi! I am Tommy Tomato. Welcome! Let's grow together.",
         "voice": TOMMY_VOICE,
-        "pitch": TOMMY_PITCH,
-        "rate": TOMMY_RATE
+        "pitch": "+20Hz",
+        "rate": "+0%"
     }
 }
 
