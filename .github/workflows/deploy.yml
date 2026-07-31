@@ -1,0 +1,129 @@
+name: Deploy Little Tomatoes
+
+on:
+  push:
+    branches:
+      - main      # → production
+      - develop   # → staging
+    paths:
+      - 'little-tomatoes-landing/**'
+      - '.github/workflows/deploy.yml'
+
+env:
+  PROJECT_ID: little-tomatoes
+  REGION: us-west1
+  WORKING_DIR: little-tomatoes-landing
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: ${{ env.WORKING_DIR }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: ${{ env.WORKING_DIR }}
+        run: pnpm build
+
+      - name: Deploy to Cloud Run (Staging)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          gcloud run deploy little-tomatoes-staging \
+            --source . \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --allow-unauthenticated \
+            --min-instances 0 \
+            --max-instances 2
+
+      - name: Show Staging URL
+        run: |
+          echo "✅ Staging deployed:"
+          echo "https://little-tomatoes-staging-686052341281.us-west1.run.app"
+
+  deploy-production:
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: ${{ env.WORKING_DIR }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: ${{ env.WORKING_DIR }}
+        run: pnpm build
+
+      - name: Deploy to Cloud Run (Production)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          gcloud run deploy little-tomatoes \
+            --source . \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --allow-unauthenticated \
+            --min-instances 0 \
+            --max-instances 10
+
+      - name: Show Production URL
+        run: |
+          echo "✅ Production deployed:"
+          echo "https://little-tomatoes-686052341281.us-west1.run.app"
+          echo "https://littletomatoes.ai"
