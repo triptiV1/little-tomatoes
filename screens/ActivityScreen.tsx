@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { Character } from './types';
+import * as Speech from 'expo-speech';
 
 const { width } = Dimensions.get('window');
 const OPTION_WIDTH = (width - 28 * 2 - 12) / 2;
@@ -90,6 +91,15 @@ export default function ActivityScreen({
     }
   };
 
+  useEffect(() => {
+    // Speak the question text automatically in a toddler-friendly speed
+    Speech.stop();
+    Speech.speak(activity.question, { rate: 0.85 });
+    return () => {
+      Speech.stop();
+    };
+  }, [activityIndex]);
+
   return (
     <SafeAreaView style={ac.screen}>
       <View style={[ac.banner, { backgroundColor: character.color }]} />
@@ -108,7 +118,16 @@ export default function ActivityScreen({
       <ScrollView contentContainerStyle={ac.scroll} keyboardShouldPersistTaps="handled">
         <View style={ac.card}>
           <Text style={ac.cardLabel}>{character.name} says:</Text>
-          <Text style={ac.questionText}>{activity.question}</Text>
+          <View style={ac.questionRow}>
+            <Text style={ac.questionText}>{activity.question}</Text>
+            <TouchableOpacity
+              onPress={() => Speech.speak(activity.question, { rate: 0.85 })}
+              style={[ac.speakerBtn, { backgroundColor: character.color }]}
+              activeOpacity={0.8}
+            >
+              <Text style={ac.speakerText}>🔊</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={ac.grid}>
@@ -179,11 +198,18 @@ const ac = StyleSheet.create({
   scroll: { paddingHorizontal: 28, paddingTop: 16, paddingBottom: 48 },
 
   card: {
-    backgroundColor: '#FFF5F5', borderRadius: 20, padding: 24,
+    backgroundColor: '#FFF5F5', borderRadius: 20, padding: 20,
     marginBottom: 24, borderWidth: 1.5, borderColor: '#FADBD8',
   },
   cardLabel: { fontSize: 12, color: '#aaa', fontWeight: '600', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
-  questionText: { fontSize: 20, fontWeight: '800', color: '#222', lineHeight: 30 },
+  questionRow: { flexDirection: 'row', alignItems: 'center', gap: 10, justifyContent: 'space-between' },
+  questionText: { fontSize: 20, fontWeight: '800', color: '#222', lineHeight: 30, flex: 1 },
+  speakerBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 4, elevation: 3,
+  },
+  speakerText: { color: 'white', fontSize: 16 },
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 20 },
   optionBtn: {

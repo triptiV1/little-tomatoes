@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
+import * as Speech from 'expo-speech';
 
 const { width } = Dimensions.get('window');
 
@@ -65,6 +66,15 @@ export default function AssessmentScreen({
     }
   };
 
+  useEffect(() => {
+    // Speak the question text automatically in a toddler-friendly speed
+    Speech.stop();
+    Speech.speak(q.question, { rate: 0.85 });
+    return () => {
+      Speech.stop();
+    };
+  }, [questionIndex]);
+
   return (
     <SafeAreaView style={as.screen}>
       <View style={as.topBar}>
@@ -86,7 +96,16 @@ export default function AssessmentScreen({
         <Text style={as.subtitle}>Answer 3 quick questions</Text>
 
         <View style={as.card}>
-          <Text style={as.questionText}>{q.question}</Text>
+          <View style={as.questionRow}>
+            <Text style={as.questionText}>{q.question}</Text>
+            <TouchableOpacity
+              onPress={() => Speech.speak(q.question, { rate: 0.85 })}
+              style={as.speakerBtn}
+              activeOpacity={0.8}
+            >
+              <Text style={as.speakerText}>🔊</Text>
+            </TouchableOpacity>
+          </View>
           {q.pattern ? <Text style={as.pattern}>{q.pattern}</Text> : null}
         </View>
 
@@ -135,11 +154,18 @@ const as = StyleSheet.create({
   subtitle: { fontSize: 14, color: '#999', marginBottom: 28 },
 
   card: {
-    backgroundColor: '#FFF5F5', borderRadius: 20, padding: 24,
+    backgroundColor: '#FFF5F5', borderRadius: 20, padding: 20,
     alignItems: 'center', marginBottom: 24,
     borderWidth: 1.5, borderColor: '#FADBD8',
   },
-  questionText: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 12, textAlign: 'center' },
+  questionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 },
+  questionText: { fontSize: 18, fontWeight: '700', color: '#333', textAlign: 'center', maxWidth: '80%' },
+  speakerBtn: {
+    backgroundColor: '#C0392B', width: 34, height: 34, borderRadius: 17,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#C0392B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 3,
+  },
+  speakerText: { color: 'white', fontSize: 16 },
   pattern: { fontSize: 28, textAlign: 'center', lineHeight: 40 },
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
